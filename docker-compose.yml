@@ -1,0 +1,39 @@
+version: "3"
+services:
+  frontend:
+    build: ./fronend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    environment:
+      - REACT_APP_API_URL=http://backend:5000/api/hello
+
+  backend:
+    build: ./backend
+    ports:
+      - "5000:5000"
+    environment:
+      - PGHOST=postgres
+      - PGUSER=postgres
+      - PGPASSWORD=example
+      - PGDATABASE=messagesdb
+      - PGPORT=5432
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: example
+      POSTGRES_DB: messagesdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./backend/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+volumes:
+  pgdata:
